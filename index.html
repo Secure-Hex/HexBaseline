@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HexBaseline - Checklist de Hardening</title>
+  <style>
+    :root {
+      --bg: #f3f7fb;
+      --panel: #ffffff;
+      --panel-2: #f8fbff;
+      --border: #d8e3f0;
+      --text: #102033;
+      --muted: #5d7085;
+      --accent: #1f6feb;
+      --accent-2: #0d4fb8;
+      --success: #17803d;
+      --warn: #b7791f;
+      --danger: #b42318;
+      --shadow: 0 10px 35px rgba(16, 32, 51, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(31, 111, 235, 0.09), transparent 20%),
+        radial-gradient(circle at left center, rgba(13, 79, 184, 0.07), transparent 22%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      width: min(1280px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0d1f33 0%, #12355c 60%, #1a4f86 100%);
+      color: #fff;
+      border-radius: 26px;
+      padding: 34px 32px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      transform: rotate(30deg);
+      border-radius: 22px;
+    }
+
+    .hero::before {
+      right: -40px;
+      top: -50px;
+    }
+
+    .hero::after {
+      right: 120px;
+      bottom: -110px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      padding: 8px 14px;
+      margin-bottom: 18px;
+      backdrop-filter: blur(6px);
+    }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1.05;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 880px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.02rem;
+      line-height: 1.65;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 22px;
+      margin-top: 24px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .sidebar {
+      max-height: 90vh;
+      overflow-y: auto;
+      position: sticky;
+      top: 18px;
+      padding: 20px;
+    }
+
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 1.05rem;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    label {
+      display: block;
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    select,
+    input[type="text"],
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 11px 13px;
+      font-size: 0.96rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    select:focus,
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(31, 111, 235, 0.11);
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .stat {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      background: var(--panel-2);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.35rem;
+      margin-bottom: 4px;
+    }
+
+    .progress-wrap {
+      margin: 16px 0 18px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+      color: var(--muted);
+    }
+
+    .progress {
+      height: 12px;
+      background: #e8eef6;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid #d9e3f0;
+    }
+
+    .progress > div {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent), #4f8ff1);
+      transition: width 0.25s ease;
+    }
+
+    .btn-row,
+    .action-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-2);
+    }
+
+    .btn-secondary {
+      background: #edf4ff;
+      color: var(--accent-2);
+      border: 1px solid #cfe0ff;
+    }
+
+    .btn-danger {
+      background: #fff2f0;
+      color: var(--danger);
+      border: 1px solid #f7d2cd;
+    }
+
+    .main {
+      padding: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .topbar h2 {
+      margin: 0 0 8px;
+      font-size: 1.4rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #eef5ff;
+      color: var(--accent-2);
+      border: 1px solid #d6e5ff;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 10px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .dot-ok { background: var(--success); }
+    .dot-bad { background: var(--danger); }
+    .dot-na { background: var(--warn); }
+    .dot-pend { background: #718096; }
+
+    .section {
+      margin-top: 18px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .section-header {
+      padding: 16px 18px;
+      background: linear-gradient(180deg, #fbfdff 0%, #f4f8fd 100%);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 1.02rem;
+    }
+
+    .section-count {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .item {
+      padding: 18px;
+      border-bottom: 1px solid #edf2f8;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .item-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 210px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .item-title {
+      margin: 0 0 10px;
+      font-size: 0.98rem;
+      line-height: 1.55;
+      font-weight: 600;
+    }
+
+    .item-id {
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #eff5fb;
+      color: #46607d;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 10px;
+    }
+
+    .item-right {
+      display: grid;
+      gap: 10px;
+    }
+
+    .status-ok { border-left: 5px solid var(--success); }
+    .status-bad { border-left: 5px solid var(--danger); }
+    .status-na { border-left: 5px solid var(--warn); }
+    .status-pending { border-left: 5px solid #94a3b8; }
+
+    .notes {
+      margin-top: 12px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      padding: 16px 18px;
+      background: #f7fbff;
+      border: 1px dashed #cdddff;
+      border-radius: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.92rem;
+    }
+
+    .empty {
+      padding: 36px 18px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+      max-height: 90vh;
+      overflow-y: auto;
+        position: static;
+      }
+
+      .item-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    
+    .report-cover-note {
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .report-status-chip {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .report-status-ok {
+      background: rgba(23, 128, 61, 0.12);
+      color: #126533;
+      border-color: rgba(23, 128, 61, 0.2);
+    }
+
+    .report-status-bad {
+      background: rgba(180, 35, 24, 0.12);
+      color: #8e1e14;
+      border-color: rgba(180, 35, 24, 0.2);
+    }
+
+    .report-status-na {
+      background: rgba(183, 121, 31, 0.12);
+      color: #8a5b17;
+      border-color: rgba(183, 121, 31, 0.2);
+    }
+
+    .report-status-pending {
+      background: rgba(113, 128, 150, 0.12);
+      color: #465468;
+      border-color: rgba(113, 128, 150, 0.2);
+    }
+
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .hero,
+      .sidebar .btn-row,
+      .sidebar .action-stack,
+      .sidebar label,
+      .sidebar select {
+        display: none !important;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .sidebar,
+      .main,
+      .card,
+      .section {
+        box-shadow: none !important;
+      }
+
+      .sidebar {
+      max-height: 90vh;
+      overflow-y: auto;
+        margin-bottom: 18px;
+      }
+
+      .wrap {
+        width: 100%;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="brand"><img src="https://securehex.cl/static/logo.png" style="height:28px; margin-right:8px;"> SecureHex · HexBaseline</div>
+      <h1>Checklist de hardening para estaciones de trabajo</h1>
+      <p>
+        Selecciona el sistema operativo, revisa cada control y marca su estado de cumplimiento.
+        La aplicación calcula el avance general, permite guardar localmente el progreso, exportar
+        los resultados en JSON e imprimir la evaluación.
+      </p>
+    </section>
+
+    <div class="layout">
+      <aside class="card sidebar">
+        <h2>Configuración de la evaluación</h2>
+
+        <div class="footer-note" style="margin-bottom:16px;">
+          Completa los datos básicos de identificación del activo y de la auditoría antes de iniciar la evaluación.
+        </div>
+
+        <div class="action-stack" style="margin-bottom:18px;">
+          <div>
+            <label for="companyName">Nombre de la empresa</label>
+            <input type="text" id="companyName" placeholder="Ej. SecureHex SpA" />
+          </div>
+          <div>
+            <label for="deviceName">Nombre del equipo / dispositivo</label>
+            <input type="text" id="deviceName" placeholder="Ej. WS-SEC-001" />
+          </div>
+          <div>
+            <label for="hostName">Hostname</label>
+            <input type="text" id="hostName" placeholder="Ej. workstation-securehex" />
+          </div>
+          <div>
+            <label for="ipAddress">Dirección IP</label>
+            <input type="text" id="ipAddress" placeholder="Ej. 192.168.1.25" />
+          </div>
+          <div>
+            <label for="macAddress">Dirección MAC</label>
+            <input type="text" id="macAddress" placeholder="Ej. AA:BB:CC:DD:EE:FF" />
+          </div>
+          <div>
+            <label for="areaName">Área</label>
+            <input type="text" id="areaName" placeholder="Ej. Seguridad, Gerencia, Contabilidad" />
+          </div>
+          <div>
+            <label for="auditorName">Auditor responsable</label>
+            <input type="text" id="auditorName" placeholder="Nombre de quien conduce la auditoría" />
+          </div>
+          <div>
+            <label for="auditDate">Fecha de auditoría</label>
+            <input type="text" id="auditDate" readonly />
+          </div>
+          <div>
+            <label for="nextAuditDate">Fecha de la siguiente auditoría</label>
+            <input type="date" id="nextAuditDate" />
+          </div>
+        </div>
+
+
+        <label for="osSelect">Sistema operativo</label>
+        <select id="osSelect">
+          <option value="windows">Windows Workstation</option>
+          <option value="linux">Linux Workstation</option>
+          <option value="macos">macOS Workstation</option>
+        </select>
+
+        <div class="stats">
+          <div class="stat">
+            <strong id="completedCount">0</strong>
+            <span class="muted">Controles evaluados</span>
+          </div>
+          <div class="stat">
+            <strong id="totalCount">0</strong>
+            <span class="muted">Controles totales</span>
+          </div>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span>Cumplimiento</span>
+            <strong id="percentLabel">0%</strong>
+          </div>
+          <div class="progress">
+            <div id="progressBar"></div>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <strong id="okCount">0</strong>
+            <span class="muted">Cumple</span>
+          </div>
+          <div class="stat">
+            <strong id="badCount">0</strong>
+            <span class="muted">No cumple</span>
+          </div>
+          <div class="stat">
+            <strong id="naCount">0</strong>
+            <span class="muted">No aplica</span>
+          </div>
+          <div class="stat">
+            <strong id="pendingCount">0</strong>
+            <span class="muted">Pendiente</span>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-primary" id="saveBtn">Guardar progreso</button>
+          <button class="btn-secondary" id="exportBtn">Exportar JSON</button>
+          <button class="btn-secondary" id="printBtn">Generar informe HTML</button>
+          <button class="btn-danger" id="resetBtn">Reiniciar checklist</button>
+        </div>
+
+        <div class="footer-note">
+          Esta versión funciona completamente del lado del cliente. Guarda el progreso en
+          <strong>localStorage</strong>, por lo que puedes subirla a tu web sin backend.
+        </div>
+      </aside>
+
+      <main class="card main">
+        <div class="topbar">
+          <div>
+            <h2 id="checklistTitle">Windows Workstation Hardening Checklist</h2>
+            <div class="pill" id="checklistSubtitle">Baseline operativa para endpoint de usuario</div>
+            <div class="legend">
+              <span><i class="dot dot-ok"></i> Cumple</span>
+              <span><i class="dot dot-bad"></i> No cumple</span>
+              <span><i class="dot dot-na"></i> No aplica</span>
+              <span><i class="dot dot-pend"></i> Pendiente</span>
+            </div>
+          </div>
+        </div>
+
+        
+        <div class="section" id="auditSummaryCard" style="margin-top:0;">
+          <div class="section-header">
+            <h3 class="section-title">Ficha de auditoría</h3>
+            <div class="section-count">Identificación del activo evaluado</div>
+          </div>
+          <div class="item">
+            <div class="item-grid">
+              <div>
+                <p class="item-title"><strong>Empresa:</strong> <span id="summaryCompany">—</span></p>
+                <p class="item-title"><strong>Equipo / dispositivo:</strong> <span id="summaryDevice">—</span></p>
+                <p class="item-title"><strong>Hostname:</strong> <span id="summaryHost">—</span></p>
+                <p class="item-title"><strong>Dirección IP:</strong> <span id="summaryIp">—</span></p>
+                <p class="item-title"><strong>Dirección MAC:</strong> <span id="summaryMac">—</span></p>
+              </div>
+              <div>
+                <p class="item-title"><strong>Área:</strong> <span id="summaryArea">—</span></p>
+                <p class="item-title"><strong>Auditor responsable:</strong> <span id="summaryAuditor">—</span></p>
+                <p class="item-title"><strong>Fecha de auditoría:</strong> <span id="summaryAuditDate">—</span></p>
+                <p class="item-title"><strong>Próxima auditoría:</strong> <span id="summaryNextAudit">—</span></p>
+                <p class="item-title"><strong>Sistema operativo:</strong> <span id="summaryOs">—</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div id="checklistContainer"></div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const checklistData = {
+      windows: {
+        title: "Windows Workstation Hardening Checklist",
+        subtitle: "Baseline operativa para estaciones de trabajo Windows",
+        sections: [
+          {
+            name: "Estado general del sistema",
+            items: [
+              "El equipo utiliza una versión de Windows actualmente soportada por el fabricante.",
+              "El sistema operativo está activado y correctamente licenciado.",
+              "El nombre del equipo sigue el estándar corporativo definido.",
+              "El equipo está inventariado dentro del entorno corporativo.",
+              "El dispositivo pertenece al dominio o a la plataforma de gestión centralizada definida por la organización.",
+              "No existen cuentas locales desconocidas o no autorizadas."
+            ]
+          },
+          {
+            name: "Actualizaciones y parchado",
+            items: [
+              "Windows Update está habilitado.",
+              "El equipo recibe actualizaciones automáticas de seguridad.",
+              "No existen actualizaciones críticas pendientes de instalación.",
+              "Los parches del sistema operativo se aplican dentro del plazo definido por la organización.",
+              "Microsoft Defender recibe actualizaciones de firmas y motor.",
+              "Las aplicaciones instaladas también se mantienen actualizadas."
+            ]
+          },
+          {
+            name: "Cifrado y protección de datos",
+            items: [
+              "BitLocker se encuentra habilitado en la unidad del sistema.",
+              "La clave de recuperación de BitLocker está resguardada de forma segura.",
+              "Los discos externos corporativos usan cifrado cuando corresponde.",
+              "El acceso a información sensible está restringido según perfil de usuario.",
+              "El equipo no almacena secretos en texto plano en ubicaciones inseguras."
+            ]
+          },
+          {
+            name: "Cuentas, autenticación y sesión",
+            items: [
+              "El usuario trabaja habitualmente con una cuenta estándar y no con una cuenta administradora.",
+              "Las cuentas administrativas están separadas de las cuentas de uso diario.",
+              "La autenticación multifactor está habilitada para servicios corporativos.",
+              "Existe política de contraseña acorde al estándar de la organización.",
+              "La pantalla se bloquea automáticamente tras un periodo de inactividad.",
+              "Se exige autenticación al reanudar la sesión.",
+              "Las cuentas locales predeterminadas o innecesarias están deshabilitadas o controladas."
+            ]
+          },
+          {
+            name: "Privilegios y elevación",
+            items: [
+              "El grupo de administradores locales está restringido.",
+              "No hay usuarios sin justificación con privilegios administrativos.",
+              "Las elevaciones de privilegio están controladas.",
+              "No se ejecutan aplicaciones innecesarias con privilegios elevados.",
+              "Las tareas programadas privilegiadas están revisadas y justificadas."
+            ]
+          },
+          {
+            name: "Protección del endpoint",
+            items: [
+              "Microsoft Defender Antivirus está habilitado y funcionando.",
+              "La protección en tiempo real está habilitada.",
+              "La protección en la nube está habilitada.",
+              "SmartScreen está habilitado.",
+              "Las reglas de reducción de superficie de ataque están implementadas o en proceso de despliegue controlado.",
+              "Credential Guard está habilitado cuando el hardware lo soporta.",
+              "Virtualization-Based Security está habilitado cuando aplica.",
+              "Memory Integrity está habilitado cuando aplica."
+            ]
+          },
+          {
+            name: "Firewall y red",
+            items: [
+              "Windows Defender Firewall está habilitado en todos los perfiles de red.",
+              "No existen reglas entrantes innecesarias.",
+              "Los servicios expuestos a la red están justificados.",
+              "El equipo no comparte carpetas de forma insegura.",
+              "Se deshabilitaron protocolos inseguros o heredados cuando no son necesarios.",
+              "Las conexiones remotas están restringidas a mecanismos autorizados."
+            ]
+          },
+          {
+            name: "Reducción de superficie de ataque",
+            items: [
+              "Solo está instalado el software estrictamente necesario.",
+              "Las aplicaciones no autorizadas fueron removidas.",
+              "Las macros peligrosas están restringidas según política.",
+              "PowerShell está sujeto a controles definidos por la organización.",
+              "La ejecución de binarios o scripts no confiables está restringida.",
+              "No existen servicios innecesarios ejecutándose en segundo plano.",
+              "Los navegadores están configurados según baseline corporativa."
+            ]
+          },
+          {
+            name: "Logging y auditoría",
+            items: [
+              "El sistema registra eventos de autenticación.",
+              "El sistema registra eventos de cambios administrativos.",
+              "Los eventos del antivirus y de seguridad se conservan adecuadamente.",
+              "El reloj del sistema está sincronizado.",
+              "Los logs relevantes pueden ser enviados a una plataforma central cuando aplica."
+            ]
+          },
+          {
+            name: "Dispositivos externos y fuga de datos",
+            items: [
+              "El uso de dispositivos USB está restringido según política.",
+              "Los medios extraíbles están controlados.",
+              "No se permite instalación arbitraria de periféricos.",
+              "La transferencia de información sensible a medios externos está regulada."
+            ]
+          },
+          {
+            name: "Respaldo y recuperación",
+            items: [
+              "La información crítica del usuario se respalda según política.",
+              "Existe procedimiento de recuperación ante pérdida del equipo.",
+              "El equipo puede ser reinstalado a un estado seguro en caso de incidente.",
+              "Las claves y accesos necesarios para recuperación están resguardados."
+            ]
+          },
+          {
+            name: "Validación final",
+            items: [
+              "El equipo fue validado contra una baseline corporativa.",
+              "Las excepciones están documentadas.",
+              "Los desvíos de seguridad tienen plan de remediación.",
+              "La última revisión de hardening está registrada."
+            ]
+          }
+        ]
+      },
+      linux: {
+        title: "Linux Workstation Hardening Checklist",
+        subtitle: "Baseline operativa para estaciones de trabajo Linux",
+        sections: [
+          {
+            name: "Estado general del sistema",
+            items: [
+              "La distribución instalada está soportada por el fabricante o comunidad correspondiente.",
+              "El sistema se encuentra actualizado y bajo inventario.",
+              "El nombre del host sigue el estándar corporativo.",
+              "No existen cuentas locales no autorizadas.",
+              "El equipo pertenece al esquema de gestión definido por la organización cuando aplica."
+            ]
+          },
+          {
+            name: "Actualizaciones y repositorios",
+            items: [
+              "El sistema recibe actualizaciones de seguridad de forma periódica.",
+              "Las actualizaciones automáticas están habilitadas cuando la política lo permite.",
+              "No existen paquetes críticos pendientes.",
+              "Solo se utilizan repositorios oficiales o autorizados.",
+              "No existen repositorios de terceros sin validación.",
+              "Las aplicaciones instaladas se mantienen actualizadas."
+            ]
+          },
+          {
+            name: "Cifrado y protección de datos",
+            items: [
+              "El disco del sistema utiliza cifrado completo.",
+              "Las claves de recuperación o mecanismos equivalentes están resguardados.",
+              "Las particiones sensibles están protegidas adecuadamente.",
+              "Los datos sensibles no se almacenan en texto plano en rutas inseguras."
+            ]
+          },
+          {
+            name: "Cuentas, autenticación y sesión",
+            items: [
+              "El usuario trabaja con cuenta no privilegiada.",
+              "El acceso a root está restringido.",
+              "El uso de sudo está limitado a usuarios autorizados.",
+              "La política de contraseñas cumple el estándar corporativo.",
+              "La sesión se bloquea automáticamente tras inactividad.",
+              "Se exige contraseña al desbloquear la sesión.",
+              "Las cuentas inactivas o de prueba fueron eliminadas o deshabilitadas."
+            ]
+          },
+          {
+            name: "Privilegios y control administrativo",
+            items: [
+              "El grupo sudo o wheel está restringido.",
+              "No existen binarios SUID o SGID innecesarios expuestos.",
+              "Las tareas programadas privilegiadas están revisadas.",
+              "No existen servicios ejecutándose como root sin necesidad real.",
+              "Las capacidades de privilegio se revisan en software sensible cuando aplica."
+            ]
+          },
+          {
+            name: "Servicios, procesos y superficie de ataque",
+            items: [
+              "Solo están instalados los paquetes necesarios para la operación.",
+              "Los servicios en escucha están identificados y justificados.",
+              "Los demonios no utilizados están deshabilitados.",
+              "El acceso remoto solo se permite mediante mecanismos aprobados.",
+              "SSH está endurecido según política corporativa.",
+              "No se permite autenticación débil o heredada en servicios remotos."
+            ]
+          },
+          {
+            name: "Firewall y red",
+            items: [
+              "El firewall del host está habilitado.",
+              "Las políticas por defecto son restrictivas.",
+              "Solo se permiten puertos y servicios estrictamente necesarios.",
+              "Se registran eventos relevantes del firewall.",
+              "No existen shares inseguros o servicios de red no autorizados.",
+              "Los protocolos inseguros están deshabilitados cuando no son necesarios."
+            ]
+          },
+          {
+            name: "Control de ejecución y protección del sistema",
+            items: [
+              "AppArmor o SELinux está habilitado y operativo según la distro.",
+              "Los perfiles de seguridad no se encuentran deshabilitados sin justificación.",
+              "Existe control sobre la ejecución de aplicaciones no confiables cuando aplica.",
+              "Se restringe la instalación arbitraria de software por parte de usuarios no autorizados.",
+              "El navegador y otras aplicaciones de alto riesgo siguen baseline corporativa."
+            ]
+          },
+          {
+            name: "Logging y auditoría",
+            items: [
+              "Los logs del sistema están habilitados y accesibles.",
+              "Los eventos de autenticación son registrados.",
+              "Los cambios administrativos quedan registrados.",
+              "auditd está habilitado cuando aplica.",
+              "Los eventos relevantes pueden integrarse a una plataforma central.",
+              "La hora del sistema está sincronizada."
+            ]
+          },
+          {
+            name: "Dispositivos externos",
+            items: [
+              "El uso de dispositivos USB está restringido según política.",
+              "Los medios extraíbles son controlados.",
+              "No se montan automáticamente dispositivos inseguros sin validación.",
+              "La fuga de datos por medios removibles está considerada en la configuración del equipo."
+            ]
+          },
+          {
+            name: "Respaldo y recuperación",
+            items: [
+              "Existe respaldo de la información crítica del usuario.",
+              "Se puede reconstruir el equipo desde una configuración segura.",
+              "Las configuraciones de seguridad pueden reaplicarse de forma repetible.",
+              "Las claves y credenciales de recuperación están resguardadas."
+            ]
+          },
+          {
+            name: "Validación final",
+            items: [
+              "El sistema fue contrastado contra baseline definida.",
+              "Las excepciones están documentadas.",
+              "Los hallazgos pendientes tienen plan de remediación.",
+              "La fecha de la última revisión está registrada."
+            ]
+          }
+        ]
+      },
+      macos: {
+        title: "macOS Workstation Hardening Checklist",
+        subtitle: "Baseline operativa para estaciones de trabajo macOS",
+        sections: [
+          {
+            name: "Estado general del sistema",
+            items: [
+              "El equipo utiliza una versión de macOS actualmente soportada.",
+              "El equipo se encuentra inventariado.",
+              "El nombre del dispositivo sigue el estándar corporativo.",
+              "No existen usuarios locales no autorizados.",
+              "El equipo está inscrito en la plataforma de gestión definida por la organización cuando aplica."
+            ]
+          },
+          {
+            name: "Actualizaciones",
+            items: [
+              "Las actualizaciones automáticas del sistema están habilitadas.",
+              "No existen parches críticos pendientes.",
+              "Las aplicaciones instaladas se mantienen actualizadas.",
+              "El sistema recibe actualizaciones de seguridad de forma oportuna."
+            ]
+          },
+          {
+            name: "Cifrado y protección de datos",
+            items: [
+              "FileVault está habilitado.",
+              "La clave de recuperación está resguardada correctamente.",
+              "Los datos sensibles del usuario están protegidos.",
+              "No se almacenan secretos en texto plano en ubicaciones inseguras."
+            ]
+          },
+          {
+            name: "Cuentas, autenticación y sesión",
+            items: [
+              "El usuario trabaja habitualmente sin privilegios administrativos permanentes cuando la política lo exige.",
+              "Las cuentas administrativas están controladas.",
+              "La contraseña del equipo cumple la política corporativa.",
+              "La pantalla se bloquea automáticamente tras inactividad.",
+              "Se exige contraseña al salir del reposo o del salvapantallas.",
+              "La autenticación corporativa usa MFA cuando corresponde.",
+              "No existen cuentas locales huérfanas o de prueba."
+            ]
+          },
+          {
+            name: "Protección nativa del sistema",
+            items: [
+              "Gatekeeper está habilitado.",
+              "No se permite software no confiable sin evaluación previa.",
+              "XProtect y los mecanismos nativos de seguridad del sistema se mantienen activos.",
+              "No se deshabilitan protecciones nativas sin justificación técnica documentada."
+            ]
+          },
+          {
+            name: "Firewall y red",
+            items: [
+              "El firewall integrado de macOS está habilitado.",
+              "Las excepciones de firewall están revisadas.",
+              "No existen servicios de compartición innecesarios expuestos.",
+              "El acceso remoto se limita a mecanismos autorizados.",
+              "La configuración de red cumple la baseline corporativa."
+            ]
+          },
+          {
+            name: "Reducción de superficie de ataque",
+            items: [
+              "Solo se encuentra instalado el software requerido para el trabajo.",
+              "Fueron removidas aplicaciones innecesarias.",
+              "Los permisos de aplicaciones sensibles están revisados.",
+              "Los navegadores siguen baseline corporativa.",
+              "La instalación de software no aprobado está restringida según política."
+            ]
+          },
+          {
+            name: "Logging y auditoría",
+            items: [
+              "Los eventos de autenticación quedan registrados.",
+              "Los cambios administrativos relevantes pueden auditarse.",
+              "La hora del sistema está sincronizada.",
+              "La telemetría relevante puede centralizarse cuando aplica."
+            ]
+          },
+          {
+            name: "Dispositivos externos y fuga de datos",
+            items: [
+              "El uso de dispositivos extraíbles está regulado.",
+              "Los permisos de acceso a periféricos están revisados.",
+              "La exfiltración de información por medios removibles está contemplada en la política del endpoint."
+            ]
+          },
+          {
+            name: "Respaldo y recuperación",
+            items: [
+              "Existe un mecanismo de respaldo aprobado.",
+              "La recuperación del dispositivo ante pérdida o incidente está definida.",
+              "El reprovisionamiento seguro del equipo es posible.",
+              "Las claves necesarias para recuperación están resguardadas."
+            ]
+          },
+          {
+            name: "Validación final",
+            items: [
+              "El equipo fue revisado contra una baseline de hardening.",
+              "Las desviaciones están documentadas.",
+              "Los hallazgos pendientes tienen plan de corrección.",
+              "La última revisión quedó registrada."
+            ]
+          }
+        ]
+      }
+    };
+
+    const storagePrefix = "hexbaseline:";
+    const osSelect = document.getElementById("osSelect");
+    const checklistTitle = document.getElementById("checklistTitle");
+    const checklistSubtitle = document.getElementById("checklistSubtitle");
+    const checklistContainer = document.getElementById("checklistContainer");
+
+    const completedCount = document.getElementById("completedCount");
+    const totalCount = document.getElementById("totalCount");
+    const percentLabel = document.getElementById("percentLabel");
+    const progressBar = document.getElementById("progressBar");
+    const okCount = document.getElementById("okCount");
+    const badCount = document.getElementById("badCount");
+    const naCount = document.getElementById("naCount");
+    const pendingCount = document.getElementById("pendingCount");
+
+
+    const metadataFields = {
+      companyName: document.getElementById("companyName"),
+      deviceName: document.getElementById("deviceName"),
+      hostName: document.getElementById("hostName"),
+      ipAddress: document.getElementById("ipAddress"),
+      macAddress: document.getElementById("macAddress"),
+      areaName: document.getElementById("areaName"),
+      auditorName: document.getElementById("auditorName"),
+      auditDate: document.getElementById("auditDate"),
+      nextAuditDate: document.getElementById("nextAuditDate")
+    };
+
+    const summaryFields = {
+      companyName: document.getElementById("summaryCompany"),
+      deviceName: document.getElementById("summaryDevice"),
+      hostName: document.getElementById("summaryHost"),
+      ipAddress: document.getElementById("summaryIp"),
+      macAddress: document.getElementById("summaryMac"),
+      areaName: document.getElementById("summaryArea"),
+      auditorName: document.getElementById("summaryAuditor"),
+      auditDate: document.getElementById("summaryAuditDate"),
+      nextAuditDate: document.getElementById("summaryNextAudit"),
+      osName: document.getElementById("summaryOs")
+    };
+
+    function formatSystemDate(date) {
+      return date.toLocaleDateString("es-CL", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      });
+    }
+
+    function formatInputDate(value) {
+      if (!value) return "—";
+      const [year, month, day] = value.split("-");
+      if (!year || !month || !day) return value;
+      return `${day}-${month}-${year}`;
+    }
+
+    function saveMetadata() {
+      const payload = {};
+      Object.entries(metadataFields).forEach(([key, element]) => {
+        payload[key] = element.value || "";
+      });
+      localStorage.setItem(`${storagePrefix}metadata`, JSON.stringify(payload));
+    }
+
+    function loadMetadata() {
+      let saved = {};
+      try {
+        saved = JSON.parse(localStorage.getItem(`${storagePrefix}metadata`)) || {};
+      } catch (error) {
+        saved = {};
+      }
+
+      const today = formatSystemDate(new Date());
+      metadataFields.auditDate.value = today;
+
+      Object.entries(metadataFields).forEach(([key, element]) => {
+        if (key === "auditDate") return;
+        if (saved[key]) {
+          element.value = saved[key];
+        }
+      });
+
+      updateMetadataSummary();
+    }
+
+    function updateMetadataSummary() {
+      summaryFields.companyName.textContent = metadataFields.companyName.value || "—";
+      summaryFields.deviceName.textContent = metadataFields.deviceName.value || "—";
+      summaryFields.hostName.textContent = metadataFields.hostName.value || "—";
+      summaryFields.ipAddress.textContent = metadataFields.ipAddress.value || "—";
+      summaryFields.macAddress.textContent = metadataFields.macAddress.value || "—";
+      summaryFields.areaName.textContent = metadataFields.areaName.value || "—";
+      summaryFields.auditorName.textContent = metadataFields.auditorName.value || "—";
+      summaryFields.auditDate.textContent = metadataFields.auditDate.value || "—";
+      summaryFields.nextAuditDate.textContent = formatInputDate(metadataFields.nextAuditDate.value);
+      summaryFields.osName.textContent = checklistData[osSelect.value].title || "—";
+    }
+
+    Object.values(metadataFields).forEach((element) => {
+      if (!element) return;
+      element.addEventListener("input", () => {
+        saveMetadata();
+        updateMetadataSummary();
+      });
+      element.addEventListener("change", () => {
+        saveMetadata();
+        updateMetadataSummary();
+      });
+    });
+
+
+    const saveBtn = document.getElementById("saveBtn");
+    const exportBtn = document.getElementById("exportBtn");
+    const printBtn = document.getElementById("printBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function getStorageKey(os) {
+      return `${storagePrefix}${os}`;
+    }
+
+    function getSavedState(os) {
+      try {
+        return JSON.parse(localStorage.getItem(getStorageKey(os))) || {};
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveState(os) {
+      const payload = {
+        os,
+        title: checklistData[os].title,
+        generatedAt: new Date().toISOString(),
+        metadata: {
+          companyName: metadataFields.companyName.value || "",
+          deviceName: metadataFields.deviceName.value || "",
+          hostName: metadataFields.hostName.value || "",
+          ipAddress: metadataFields.ipAddress.value || "",
+          macAddress: metadataFields.macAddress.value || "",
+          areaName: metadataFields.areaName.value || "",
+          auditorName: metadataFields.auditorName.value || "",
+          auditDate: metadataFields.auditDate.value || "",
+          nextAuditDate: metadataFields.nextAuditDate.value || ""
+        },
+        sections: []
+      };
+
+      document.querySelectorAll(".section").forEach((sectionEl) => {
+        const sectionName = sectionEl.dataset.sectionName;
+        const items = [];
+
+        sectionEl.querySelectorAll(".item").forEach((itemEl) => {
+          const itemId = itemEl.dataset.itemId;
+          const title = itemEl.querySelector(".item-title").textContent.trim();
+          const status = itemEl.querySelector(".status-select").value;
+          const note = itemEl.querySelector(".notes-input").value.trim();
+
+          items.push({
+            id: itemId,
+            title,
+            status,
+            note
+          });
+        });
+
+        payload.sections.push({
+          name: sectionName,
+          items
+        });
+      });
+
+      localStorage.setItem(getStorageKey(os), JSON.stringify(payload));
+      return payload;
+    }
+
+    function applySavedState(os) {
+      const saved = getSavedState(os);
+      if (!saved.sections) {
+        updateStats();
+        return;
+      }
+
+      saved.sections.forEach((section) => {
+        section.items.forEach((savedItem) => {
+          const itemEl = document.querySelector(`[data-item-id="${savedItem.id}"]`);
+          if (!itemEl) {
+            return;
+          }
+
+          const select = itemEl.querySelector(".status-select");
+          const notes = itemEl.querySelector(".notes-input");
+
+          if (select && savedItem.status) {
+            select.value = savedItem.status;
+            applyStatusClass(itemEl, savedItem.status);
+          }
+
+          if (notes && savedItem.note) {
+            notes.value = savedItem.note;
+          }
+        });
+      });
+
+      updateStats();
+    }
+
+    function statusText(status) {
+      switch (status) {
+        case "ok":
+          return "Cumple";
+        case "bad":
+          return "No cumple";
+        case "na":
+          return "No aplica";
+        default:
+          return "Pendiente";
+      }
+    }
+
+    function applyStatusClass(itemEl, status) {
+      itemEl.classList.remove("status-ok", "status-bad", "status-na", "status-pending");
+
+      const classMap = {
+        ok: "status-ok",
+        bad: "status-bad",
+        na: "status-na",
+        pending: "status-pending"
+      };
+
+      itemEl.classList.add(classMap[status] || "status-pending");
+    }
+
+    function updateStats() {
+      const selects = [...document.querySelectorAll(".status-select")];
+      const total = selects.length;
+
+      let ok = 0;
+      let bad = 0;
+      let na = 0;
+      let pending = 0;
+
+      selects.forEach((select) => {
+        if (select.value === "ok") ok += 1;
+        else if (select.value === "bad") bad += 1;
+        else if (select.value === "na") na += 1;
+        else pending += 1;
+      });
+
+      const evaluated = ok + bad + na;
+      const eligible = total - na;
+      const percent = eligible > 0 ? Math.round((ok / eligible) * 100) : 0;
+
+      completedCount.textContent = String(evaluated);
+      totalCount.textContent = String(total);
+      okCount.textContent = String(ok);
+      badCount.textContent = String(bad);
+      naCount.textContent = String(na);
+      pendingCount.textContent = String(pending);
+      percentLabel.textContent = `${percent}%`;
+      progressBar.style.width = `${percent}%`;
+    }
+
+    function renderChecklist(os) {
+      const data = checklistData[os];
+      checklistTitle.textContent = data.title;
+      checklistSubtitle.textContent = data.subtitle;
+      checklistContainer.innerHTML = "";
+
+      let globalIndex = 1;
+
+      if (!data.sections || data.sections.length === 0) {
+        checklistContainer.innerHTML = '<div class="empty">No hay contenido disponible para este sistema operativo.</div>';
+        return;
+      }
+
+      data.sections.forEach((section, sectionIndex) => {
+        const sectionEl = document.createElement("section");
+        sectionEl.className = "section";
+        sectionEl.dataset.sectionName = section.name;
+
+        const headerEl = document.createElement("div");
+        headerEl.className = "section-header";
+        headerEl.innerHTML = `
+          <h3 class="section-title">${section.name}</h3>
+          <div class="section-count">${section.items.length} controles</div>
+        `;
+        sectionEl.appendChild(headerEl);
+
+        section.items.forEach((itemText, itemIndex) => {
+          const itemId = `${os.toUpperCase()}-${String(sectionIndex + 1).padStart(2, "0")}-${String(itemIndex + 1).padStart(2, "0")}`;
+
+          const itemEl = document.createElement("article");
+          itemEl.className = "item status-pending";
+          itemEl.dataset.itemId = itemId;
+
+          itemEl.innerHTML = `
+            <div class="item-grid">
+              <div>
+                <div class="item-id">Control ${itemId}</div>
+                <p class="item-title">${itemText}</p>
+                <div class="notes">
+                  <label for="note-${itemId}">Observaciones</label>
+                  <textarea
+                    id="note-${itemId}"
+                    class="notes-input"
+                    placeholder="Agrega evidencia, hallazgos, responsable, fecha o plan de remediación..."></textarea>
+                </div>
+              </div>
+              <div class="item-right">
+                <div>
+                  <label for="status-${itemId}">Estado</label>
+                  <select id="status-${itemId}" class="status-select">
+                    <option value="pending">Pendiente</option>
+                    <option value="ok">Cumple</option>
+                    <option value="bad">No cumple</option>
+                    <option value="na">No aplica</option>
+                  </select>
+                </div>
+                <div class="footer-note">
+                  <strong>${statusText("pending")}</strong><br />
+                  Evalúa este control según la condición real del endpoint.
+                </div>
+              </div>
+            </div>
+          `;
+
+          const select = itemEl.querySelector(".status-select");
+          const footerNote = itemEl.querySelector(".footer-note strong");
+
+          select.addEventListener("change", () => {
+            applyStatusClass(itemEl, select.value);
+            footerNote.textContent = statusText(select.value);
+            updateStats();
+          });
+
+          sectionEl.appendChild(itemEl);
+          globalIndex += 1;
+        });
+
+        checklistContainer.appendChild(sectionEl);
+      });
+
+      applySavedState(os);
+      updateStats();
+    }
+
+    function exportJson() {
+      const os = osSelect.value;
+      const payload = saveState(os);
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+        type: "application/json;charset=utf-8"
+      });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const date = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `hexbaseline-${os}-${date}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function resetChecklist() {
+      const os = osSelect.value;
+      if (!window.confirm("Esto eliminará el progreso guardado para este sistema operativo. ¿Deseas continuar?")) {
+        return;
+      }
+
+      localStorage.removeItem(getStorageKey(os));
+      renderChecklist(os);
+      updateMetadataSummary();
+    }
+
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function getMetadataSnapshot() {
+      return {
+        companyName: metadataFields.companyName.value || "—",
+        deviceName: metadataFields.deviceName.value || "—",
+        hostName: metadataFields.hostName.value || "—",
+        ipAddress: metadataFields.ipAddress.value || "—",
+        macAddress: metadataFields.macAddress.value || "—",
+        areaName: metadataFields.areaName.value || "—",
+        auditorName: metadataFields.auditorName.value || "—",
+        auditDate: metadataFields.auditDate.value || "—",
+        nextAuditDate: formatInputDate(metadataFields.nextAuditDate.value)
+      };
+    }
+
+    function getCurrentEvaluationSnapshot() {
+      const items = [...document.querySelectorAll(".item")].map((itemEl) => {
+        const controlId = itemEl.dataset.itemId;
+        const title = itemEl.querySelector(".item-title")?.textContent?.trim() || "";
+        const status = itemEl.querySelector(".status-select")?.value || "pending";
+        const note = itemEl.querySelector(".notes-input")?.value?.trim() || "";
+        const sectionName = itemEl.closest(".section")?.dataset?.sectionName || "";
+        return { controlId, title, status, note, sectionName };
+      });
+
+      const counts = items.reduce((acc, item) => {
+        acc[item.status] = (acc[item.status] || 0) + 1;
+        return acc;
+      }, { ok: 0, bad: 0, na: 0, pending: 0 });
+
+      const eligible = items.length - (counts.na || 0);
+      const percent = eligible > 0 ? Math.round(((counts.ok || 0) / eligible) * 100) : 0;
+
+      return { items, counts, percent, total: items.length };
+    }
+
+    function buildExecutiveSummary(snapshot) {
+      const findings = [];
+      if ((snapshot.counts.bad || 0) > 0) {
+        findings.push(`Se identificaron ${snapshot.counts.bad} controles en estado "No cumple", los cuales requieren remediación priorizada.`);
+      }
+      if ((snapshot.counts.pending || 0) > 0) {
+        findings.push(`Existen ${snapshot.counts.pending} controles en estado "Pendiente", por lo que la evaluación aún no está completamente cerrada.`);
+      }
+      if ((snapshot.counts.ok || 0) > 0) {
+        findings.push(`El endpoint evidencia ${snapshot.counts.ok} controles en estado "Cumple", lo que refleja una base de seguridad ya implementada.`);
+      }
+      if ((snapshot.counts.na || 0) > 0) {
+        findings.push(`Se marcaron ${snapshot.counts.na} controles como "No aplica", por lo que fueron excluidos del cálculo del porcentaje de cumplimiento.`);
+      }
+      if (findings.length === 0) {
+        findings.push("No existen resultados suficientes para elaborar un resumen ejecutivo.");
+      }
+      return findings;
+    }
+
+    function buildSectionSummary(snapshot) {
+      const sectionMap = new Map();
+      snapshot.items.forEach((item) => {
+        if (!sectionMap.has(item.sectionName)) {
+          sectionMap.set(item.sectionName, { total: 0, ok: 0, bad: 0, na: 0, pending: 0 });
+        }
+        const entry = sectionMap.get(item.sectionName);
+        entry.total += 1;
+        entry[item.status] += 1;
+      });
+
+      return [...sectionMap.entries()].map(([name, stats]) => {
+        const eligible = stats.total - stats.na;
+        const percent = eligible > 0 ? Math.round((stats.ok / eligible) * 100) : 0;
+        return { name, ...stats, percent };
+      });
+    }
+
+    function generateProfessionalReport() {
+      const metadata = getMetadataSnapshot();
+      const snapshot = getCurrentEvaluationSnapshot();
+      const summary = buildExecutiveSummary(snapshot);
+      const sectionSummary = buildSectionSummary(snapshot);
+      const osName = checklistData[osSelect.value].title;
+      const generatedAt = new Date().toLocaleString("es-CL");
+
+      const statusMap = {
+        ok: { label: "Cumple", css: "report-status-ok" },
+        bad: { label: "No cumple", css: "report-status-bad" },
+        na: { label: "No aplica", css: "report-status-na" },
+        pending: { label: "Pendiente", css: "report-status-pending" }
+      };
+
+      const groupedItems = {};
+      snapshot.items.forEach((item) => {
+        if (!groupedItems[item.sectionName]) groupedItems[item.sectionName] = [];
+        groupedItems[item.sectionName].push(item);
+      });
+
+      const reportHtml = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Informe de Hardening - ${escapeHtml(metadata.deviceName)}</title>
+  <style>
+    :root {
+      --text: #122235;
+      --muted: #587086;
+      --line: #d9e3ef;
+      --panel: #ffffff;
+      --soft: #f5f9fd;
+      --accent: #123d74;
+      --accent-2: #1f6feb;
+      --success: #17803d;
+      --warning: #b7791f;
+      --danger: #b42318;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    @page {
+      size: A4;
+      margin: 14mm 12mm 16mm 12mm;
+    }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--text);
+      background: #eef4f9;
+    }
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      background: #fff;
+      padding: 0;
+    }
+    .cover {
+      min-height: 269mm;
+      border: 1px solid var(--line);
+      border-top: 10px solid var(--accent);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+      padding: 18mm 14mm 14mm;
+    }
+    .cover-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .cover-brand img {
+      height: 34px;
+      width: auto;
+      display: block;
+      filter: brightness(0) saturate(100%);
+    }
+    .brand-text {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+    .cover h1 {
+      margin: 0 0 14px;
+      font-size: 28px;
+      line-height: 1.15;
+      color: #09131f;
+      max-width: 150mm;
+    }
+    .cover p {
+      margin: 0 0 18px;
+      line-height: 1.75;
+      color: #283a4d;
+      max-width: 150mm;
+      font-size: 15px;
+    }
+    .cover-meta-wrap {
+      margin-top: 18mm;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 14px;
+    }
+    .meta-card {
+      border: 1px solid var(--line);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 10px 12px;
+      min-height: 58px;
+    }
+    .meta-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .meta-value {
+      font-size: 14px;
+      line-height: 1.45;
+      word-break: break-word;
+      font-weight: 600;
+      color: #0f1d2a;
+    }
+    .report-section {
+      margin-top: 10mm;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      background: #fff;
+    }
+    .report-header {
+      padding: 10px 12px;
+      background: #edf5ff;
+      border-bottom: 1px solid var(--line);
+    }
+    .report-header h2 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    .report-header p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 13px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      padding: 12px;
+    }
+    .kpi {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 12px;
+      text-align: center;
+    }
+    .kpi strong {
+      display: block;
+      font-size: 22px;
+      margin-bottom: 4px;
+      color: #0f1d2a;
+    }
+    .kpi span {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .summary-list {
+      padding: 12px 16px 16px;
+    }
+    .summary-list p {
+      margin: 0 0 10px;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .report-table-wrap {
+      padding: 0 12px 12px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    th {
+      background: #f5f9fd;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: #1d3147;
+    }
+    .status-chip {
+      display: inline-block;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .ok { background: rgba(23,128,61,.12); color: #126533; border-color: rgba(23,128,61,.18); }
+    .bad { background: rgba(180,35,24,.12); color: #8e1e14; border-color: rgba(180,35,24,.18); }
+    .na { background: rgba(183,121,31,.12); color: #8a5b17; border-color: rgba(183,121,31,.18); }
+    .pending { background: rgba(113,128,150,.12); color: #465468; border-color: rgba(113,128,150,.18); }
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+    .footer {
+      margin-top: 8mm;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+      padding: 0 2mm 8mm;
+    }
+    @media print {
+      html, body {
+        background: #fff !important;
+      }
+      .page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+      }
+      .cover-brand img {
+        filter: brightness(0) saturate(100%);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="cover">
+      <div class="cover-brand">
+        <img src="https://securehex.cl/static/logo.png" alt="SecureHex" />
+        <div class="brand-text">SecureHex · HexBaseline</div>
+      </div>
+
+      <h1>Informe de hardening para estación de trabajo</h1>
+      <p>Documento de evaluación técnica orientado a la revisión del nivel de endurecimiento de seguridad del endpoint auditado. Este informe fue generado desde HexBaseline y fue rediseñado con un formato de salida estable para conversión directa a PDF, evitando dependencia de fondos oscuros o estilos que algunos navegadores omiten al exportar.</p>
+
+      <div class="cover-meta-wrap">
+        <div class="grid-2">
+          <div class="meta-card"><div class="meta-label">Empresa</div><div class="meta-value">${escapeHtml(metadata.companyName)}</div></div>
+          <div class="meta-card"><div class="meta-label">Sistema operativo</div><div class="meta-value">${escapeHtml(osName)}</div></div>
+          <div class="meta-card"><div class="meta-label">Equipo / dispositivo</div><div class="meta-value">${escapeHtml(metadata.deviceName)}</div></div>
+          <div class="meta-card"><div class="meta-label">Hostname</div><div class="meta-value">${escapeHtml(metadata.hostName)}</div></div>
+          <div class="meta-card"><div class="meta-label">Dirección IP</div><div class="meta-value">${escapeHtml(metadata.ipAddress)}</div></div>
+          <div class="meta-card"><div class="meta-label">Dirección MAC</div><div class="meta-value">${escapeHtml(metadata.macAddress)}</div></div>
+          <div class="meta-card"><div class="meta-label">Área</div><div class="meta-value">${escapeHtml(metadata.areaName)}</div></div>
+          <div class="meta-card"><div class="meta-label">Auditor responsable</div><div class="meta-value">${escapeHtml(metadata.auditorName)}</div></div>
+          <div class="meta-card"><div class="meta-label">Fecha de auditoría</div><div class="meta-value">${escapeHtml(metadata.auditDate)}</div></div>
+          <div class="meta-card"><div class="meta-label">Próxima auditoría</div><div class="meta-value">${escapeHtml(metadata.nextAuditDate)}</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="report-section page-break">
+      <div class="report-header">
+        <h2>Resumen ejecutivo</h2>
+        <p>Consolidado general del resultado de la evaluación realizada sobre el endpoint auditado.</p>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><strong>${snapshot.percent}%</strong><span>Cumplimiento</span></div>
+        <div class="kpi"><strong>${snapshot.total}</strong><span>Controles totales</span></div>
+        <div class="kpi"><strong>${snapshot.counts.ok || 0}</strong><span>Cumple</span></div>
+        <div class="kpi"><strong>${snapshot.counts.bad || 0}</strong><span>No cumple</span></div>
+        <div class="kpi"><strong>${snapshot.counts.pending || 0}</strong><span>Pendiente</span></div>
+      </div>
+      <div class="summary-list">
+        ${summary.map(text => `<p>${escapeHtml(text)}</p>`).join("")}
+        <p><strong>Fecha de generación del informe:</strong> ${escapeHtml(generatedAt)}</p>
+      </div>
+    </section>
+
+    <section class="report-section">
+      <div class="report-header">
+        <h2>Resumen por dominio de control</h2>
+        <p>Vista consolidada por sección del checklist técnico.</p>
+      </div>
+      <div class="report-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Dominio</th>
+              <th>Total</th>
+              <th>Cumple</th>
+              <th>No cumple</th>
+              <th>No aplica</th>
+              <th>Pendiente</th>
+              <th>%</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sectionSummary.map(section => `
+              <tr>
+                <td>${escapeHtml(section.name)}</td>
+                <td>${section.total}</td>
+                <td>${section.ok}</td>
+                <td>${section.bad}</td>
+                <td>${section.na}</td>
+                <td>${section.pending}</td>
+                <td>${section.percent}%</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    ${Object.entries(groupedItems).map(([sectionName, items]) => `
+      <section class="report-section">
+        <div class="report-header">
+          <h2>${escapeHtml(sectionName)}</h2>
+          <p>Detalle de controles evaluados dentro del dominio seleccionado.</p>
+        </div>
+        <div class="report-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 14%;">Control</th>
+                <th style="width: 46%;">Descripción</th>
+                <th style="width: 16%;">Estado</th>
+                <th style="width: 24%;">Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map(item => `
+                <tr>
+                  <td>${escapeHtml(item.controlId)}</td>
+                  <td>${escapeHtml(item.title)}</td>
+                  <td><span class="status-chip ${statusMap[item.status].css.replace("report-status-", "")}">${escapeHtml(statusMap[item.status].label)}</span></td>
+                  <td>${escapeHtml(item.note || "Sin observaciones registradas.")}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    `).join("")}
+
+    <div class="footer">
+      Este documento fue generado automáticamente por HexBaseline de SecureHex. La portada y las secciones fueron ajustadas a un formato imprimible, de modo que el encabezado conserve su apariencia al exportar a PDF incluso cuando el navegador no respeta fondos decorativos complejos.
+    </div>
+  </div>
+</body>
+</html>`;
+
+      const reportWindow = window.open("", "_blank");
+      if (!reportWindow) {
+        window.alert("No fue posible abrir la ventana del informe. Verifica si el navegador está bloqueando ventanas emergentes.");
+        return;
+      }
+
+      reportWindow.document.open();
+      reportWindow.document.write(reportHtml);
+      reportWindow.document.close();
+    }
+
+
+    osSelect.addEventListener("change", () => {
+      loadMetadata();
+    renderChecklist(osSelect.value);
+    updateMetadataSummary();
+      updateMetadataSummary();
+    });
+
+    saveBtn.addEventListener("click", () => {
+      saveState(osSelect.value);
+      window.alert("Progreso guardado localmente en este navegador.");
+    });
+
+    exportBtn.addEventListener("click", exportJson);
+    printBtn.addEventListener("click", generateProfessionalReport);
+    resetBtn.addEventListener("click", resetChecklist);
+
+    loadMetadata();
+    renderChecklist(osSelect.value);
+    updateMetadataSummary();
+  </script>
+</body>
+</html>
